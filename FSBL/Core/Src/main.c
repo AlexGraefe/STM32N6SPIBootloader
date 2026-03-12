@@ -114,7 +114,7 @@ int main(void)
   HAL_GPIO_WritePin(RED_LED_GPIO_Port,RED_LED_Pin,GPIO_PIN_RESET);
   /* USER CODE END 2 */
   HAL_Delay(3000);
-  if (!HAL_GPIO_ReadPin(USER1_BUTTON_GPIO_Port, USER1_BUTTON_Pin)) {
+  if (HAL_GPIO_ReadPin(USER1_BUTTON_GPIO_Port, USER1_BUTTON_Pin)) {
     /* Launch the application */
     if (BOOT_OK != BOOT_Application(0x00200000)) {
       Error_Handler();

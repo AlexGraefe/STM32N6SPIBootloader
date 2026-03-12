@@ -12,15 +12,18 @@
 
 static SPI_HandleTypeDef hspi5;
 static const uint8_t iris_handshake_expected[4] = {255, 254, 253, 252};
-static uint32_t iris_frame_nmbr = 0U;
 
-static void iris_transmit_raw(const uint8_t *data, uint16_t size)
+static HAL_StatusTypeDef iris_receive_raw(uint8_t *data, uint16_t size)
 {
+    HAL_StatusTypeDef ret;
+
     HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_RESET);
     my_sleep(100);
-    HAL_SPI_Transmit(&hspi5, (uint8_t *)data, size, ~0);
+    ret = HAL_SPI_Receive(&hspi5, data, size, ~0);
     my_sleep(100);
     HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_SET);
+
+    return ret;
 }
 
 
@@ -162,40 +165,19 @@ void iris_handshake_blocking()
 }
 
 
-void iris_transmit(const uint8_t *data, uint32_t size)
+int iris_receive_packet_blocking(iris_packet_t *packet)
 {
-    iris_frame_nmbr++;
-    uint32_t packet_nmbr;
-
-    if ((data == NULL) || (size == 0U))
+    if (packet == NULL)
     {
-        return;
+        return -1;
     }
 
-    packet_nmbr = (size + IRIS_PACKET_PAYLOAD_SIZE - 1U) / IRIS_PACKET_PAYLOAD_SIZE;
-    if (packet_nmbr == 0U)
+    if (iris_receive_raw((uint8_t *)packet, (uint16_t)sizeof(*packet)) != HAL_OK)
     {
-        return;
+        return -1;
     }
 
-    for (uint32_t packet_idx = 0U; packet_idx < packet_nmbr; packet_idx++)
-    {
-        iris_packet_t pkt;
-        uint32_t offset = packet_idx * IRIS_PACKET_PAYLOAD_SIZE;
-        uint32_t remaining = size - offset;
-        uint32_t chunk_len = (remaining > IRIS_PACKET_PAYLOAD_SIZE) ? IRIS_PACKET_PAYLOAD_SIZE : remaining;
-
-        pkt.frame_nmbr = iris_frame_nmbr;
-        pkt.packet_idx = packet_idx;
-        pkt.packet_nmbr = packet_nmbr;
-
-        memset(pkt.payload, 0, sizeof(pkt.payload));
-        memcpy(pkt.payload, &data[offset], chunk_len);
-
-        iris_transmit_raw((const uint8_t *)&pkt, (uint16_t)sizeof(pkt));
-        my_sleep(100);
-
-    }
+    return 0;
 }
 
 // uint32_t packet_nmbr = DIV_ROUND_UP(rx_size, IRIS_PACKET_PAYLOAD_SIZE);

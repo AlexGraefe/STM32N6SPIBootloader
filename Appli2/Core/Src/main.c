@@ -60,7 +60,7 @@ int main(void)
 {
   Hardware_init();
   while (1) {
-    printf("I am the second application.\n");
+    printf("I am the second application50000.\n");
     HAL_Delay(1000);
   }
 }

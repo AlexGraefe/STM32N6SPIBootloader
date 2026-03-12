@@ -49,6 +49,9 @@
 #define APP_VERSION_STRING "unversioned"
 #endif
 
+#define MCU_FLASH_START_ADDR 0x200000UL
+#define MCU_FLASH_BLOCK_SIZE 0x10000UL
+
 static void Hardware_init(void);
 
 /**
@@ -59,39 +62,80 @@ static void Hardware_init(void);
 int main(void)
 {
   Hardware_init();
-  uint8_t data[256];
-  for (uint16_t i = 0; i < 256; i++) {
-    data[i] = 2;
-  }
+  uint32_t erased_block_addr = 0xFFFFFFFFUL;
+  HAL_Delay(2000);
 
-  uint8_t read_data[256] = {1.0};
-  uint8_t k = 10;
-  int ret;
-  while (1) {
-    for (uint16_t i = 0; i < 256; i++) {
-      data[i] = (k+i)%256;
-    }
-    printf("W: %u\n", k);
-    ret = BSP_XSPI_NOR_Erase_Block(0, 0x5A20000LU, MX66UW1G45G_ERASE_64K);
-    if (ret != BSP_ERROR_NONE) {
-      printf("Error erasing flash: %d\n", ret);
-    }
-
-    ret = BSP_XSPI_NOR_Write(0, data, 0x5A20000LU, 256);
-    if (ret != BSP_ERROR_NONE) {
-      printf("Error writing to flash: %d\n", ret);
-    }
-    ret = BSP_XSPI_NOR_Read(0, read_data, 0x5A20000LU, 256);
-    if (ret != BSP_ERROR_NONE) {
-      printf("Error reading from flash: %d\n", ret);
-    }
-    for (int i = 0; i < 16; i++) {
-      printf("%u, %u\n", read_data[i], data[i]);
-    }
-    printf("\n");
-    HAL_GPIO_TogglePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin);
+  while (1)
+  {
+    iris_packet_t packet;
+    uint32_t write_addr;
+    uint32_t write_end_addr;
+    uint32_t start_block_addr;
+    uint32_t end_block_addr;
+    int ret;
     HAL_Delay(1000);
-    k++;
+    if (iris_receive_packet_blocking(&packet) != 0)
+    {
+      printf("Error receiving IRIS packet\n");
+      continue;
+    }
+    printf("RX %lu/%lu\n", (unsigned long)packet.packet_idx, (unsigned long)packet.packet_nmbr);
+    if (packet.packet_nmbr == 0U)
+    {
+      printf("Invalid packet count 0\n");
+      continue;
+    }
+
+    write_addr = MCU_FLASH_START_ADDR + (packet.packet_idx * IRIS_PACKET_PAYLOAD_SIZE);
+    write_end_addr = write_addr + IRIS_PACKET_PAYLOAD_SIZE - 1U;
+
+    start_block_addr = write_addr & ~(MCU_FLASH_BLOCK_SIZE - 1U);
+    end_block_addr = write_end_addr & ~(MCU_FLASH_BLOCK_SIZE - 1U);
+
+    if (erased_block_addr != start_block_addr)
+    {
+      ret = BSP_XSPI_NOR_Erase_Block(0, start_block_addr, MX66UW1G45G_ERASE_64K);
+      if (ret != BSP_ERROR_NONE)
+      {
+        printf("Error erasing flash block 0x%08lX: %d\n",
+               (unsigned long)start_block_addr,
+               ret);
+        continue;
+      }
+      erased_block_addr = start_block_addr;
+    }
+
+    if ((end_block_addr != start_block_addr) && (erased_block_addr != end_block_addr))
+    {
+      ret = BSP_XSPI_NOR_Erase_Block(0, end_block_addr, MX66UW1G45G_ERASE_64K);
+      if (ret != BSP_ERROR_NONE)
+      {
+        printf("Error erasing flash block 0x%08lX: %d\n",
+               (unsigned long)end_block_addr,
+               ret);
+        continue;
+      }
+      erased_block_addr = end_block_addr;
+    }
+
+    ret = BSP_XSPI_NOR_Write(0, packet.payload, write_addr, IRIS_PACKET_PAYLOAD_SIZE);
+    if (ret != BSP_ERROR_NONE)
+    {
+      printf("Error writing packet %lu to flash at 0x%08lX: %d\n",
+             (unsigned long)packet.packet_idx,
+             (unsigned long)write_addr,
+             ret);
+      continue;
+    }
+
+    if ((packet.packet_idx + 1U) >= packet.packet_nmbr)
+    {
+      printf("Writing finished\n");
+      while (1)
+      {
+        HAL_Delay(1000);
+      }
+    }
   }
 }
 
@@ -129,10 +173,10 @@ static void Hardware_init(void)
   Timer_Config();
   PRINTF_END("IRIS Init");
 
-  // PRINTF_START("IRIS Init");
-  // iris_config();
-  // iris_handshake_blocking();
-  // PRINTF_END("IRIS Init");
+  PRINTF_START("IRIS Init");
+  iris_config();
+  iris_handshake_blocking();
+  PRINTF_END("IRIS Init");
 
   Fuse_Programming();
 
