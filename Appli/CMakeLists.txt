@@ -37,15 +37,6 @@ set(MX_Defines_Syms
 	STM32N657xx
     $<$<CONFIG:Debug>:DEBUG>
     USE_FULL_ASSERT
-    # Options for LL_ATON (neural network runtime library for the NPU)
-    USE_FULL_LL_DRIVER
-    VECT_TAB_SRAM
-    LL_ATON_DUMP_DEBUG_API
-    LL_ATON_PLATFORM=LL_ATON_PLAT_STM32N6
-    LL_ATON_OSAL=LL_ATON_OSAL_BARE_METAL
-    LL_ATON_RT_MODE=LL_ATON_RT_ASYNC
-    LL_ATON_SW_FALLBACK
-    LL_ATON_DBG_BUFFER_INFO_EXCLUDED=1
 )
 # System include paths
 set(MX_Include_Dirs
@@ -57,36 +48,10 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/DSP/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/STM32N6570-DK  # needed for bsp components like flash and external RAM
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/Devices/STM32N6xx/
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Inc
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton
-    ${CMAKE_CURRENT_SOURCE_DIR}/Model
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/imx335
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd55g1
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd6g
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd1943
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/ov5640
     
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/Components/Common
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/ai-postprocessing-wrapper
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-vision-models-postprocessing/lib_vision_models_pp/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/Components/aps256xx
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/Utilities/lcd
-
-    # video encoder
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder/source/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder/source/h264
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder_EWL
 )
-
-    # file(GLOB AI_POSTPROCESSING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/ai-postprocessing-wrapper/*.c")
-    # file(GLOB VISION_POSTPROCESSING_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-vision-models-postprocessing/lib_vision_models_pp/Src/*.c")
 
 # System application sources
 set(MX_Application_Src
@@ -95,21 +60,15 @@ set(MX_Application_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/syscalls.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32N6xx/Source/Templates/gcc/startup_stm32n657xx.s
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/fuseprogramming.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/app_camerapipeline.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/crop_img.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/stm32_lcd_ex.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/console.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/iris.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/timer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/gpio.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/iac.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/lcd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/mpu.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/sd_card.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/security.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/system_clock.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Core/Src/hardware/venc.c
 
     # ${CMAKE_CURRENT_SOURCE_DIR}/Model/network.c
     # ${CMAKE_CURRENT_SOURCE_DIR}/Model/stai_network.c
@@ -117,10 +76,6 @@ set(MX_Application_Src
     ${AI_POSTPROCESSING_SRC}
     ${VISION_POSTPROCESSING_SRC}
 )
-
-file(GLOB VENC_COMMON_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder/source/common/*.c")
-file(GLOB VENC_EWL_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder_EWL/*.c")
-file(GLOB VENC_H264_SRC "${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/VideoEncoder/source/h264/*.c")
 
 # STM32 HAL/LL Drivers
 set(STM32_Drivers_Src
@@ -163,55 +118,6 @@ set(STM32_Drivers_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/STM32N6570-DK/stm32n6570_discovery.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/Components/mx66uw1g45g/mx66uw1g45g.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/Components/aps256xx/aps256xx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/STM32N6570-DK/stm32n6570_discovery_lcd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/BSP/STM32N6570-DK/stm32n6570_discovery_sd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Utilities/lcd/stm32_lcd.c
-
-    # camera sensors
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/cmw_camera.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/cmw_utils.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/imx335/imx335.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/imx335/imx335_reg.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd6g/vd6g.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd55g1/vd55g1.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/vd1943/vd1943.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/ov5640/ov5640.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/ov5640/ov5640_reg.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_vd55g1.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_vd66gy.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_imx335.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_vd1943.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_ov5640.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/sensors/cmw_vd56g3.c   # if new sensor is added, its corresponding cmw_*.c file should be added here
-
-    # camera image signal processing (white balance, auto exposure) algorithms
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_algo.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_awb_algo.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_ae_algo.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_cmd_parser.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_core.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_services.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stm32-mw-camera/ISP_Library/isp/Src/isp_tool_com.c
-
-    # video encoding
-    ${VENC_COMMON_SRC}
-    ${VENC_EWL_SRC}
-    ${VENC_H264_SRC}
-
-    # all files needed for neural network inference.
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/Devices/STM32N6xx/npu_cache.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/Devices/STM32N6xx/mcu_cache.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_rt_main.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_runtime.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_cipher.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_stai_internal.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_util.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_sw_float.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_sw_integer.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_lib.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_lib_sw_operators.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/stedgeai-lib/Npu/ll_aton/ll_aton_lib_sw_operators.c
 )
 
 

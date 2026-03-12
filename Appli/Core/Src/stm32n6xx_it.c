@@ -20,9 +20,6 @@
 #include "stm32n6xx_hal.h"
 #include "stm32n6xx_it.h"
 
-#include "cmw_camera.h"
-#include "stm32n6570_discovery_sd.h"
-
 extern uint32_t starting_tick;
 
 /**
@@ -140,30 +137,4 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
-}
-
-/******************************************************************************/
-/*                 STM32N6xx Peripherals Interrupt Handlers                   */
-/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
-/*  available peripheral interrupt handler's name please refer to the startup */
-/*  file (startup_stm32n6xx.s).                                               */
-/******************************************************************************/
-void CSI_IRQHandler(void)
-{
-  DCMIPP_HandleTypeDef *hcamera_dcmipp = CMW_CAMERA_GetDCMIPPHandle();
-  HAL_DCMIPP_CSI_IRQHandler(hcamera_dcmipp);
-}
-
-
-void DCMIPP_IRQHandler(void)
-{
-  DCMIPP_HandleTypeDef *hcamera_dcmipp = CMW_CAMERA_GetDCMIPPHandle();
-  HAL_DCMIPP_IRQHandler(hcamera_dcmipp);
-}
-
-void SDMMC2_IRQHandler(void)
-{
-  uint32_t ending_tick = HAL_GetTick();
-  printf("SDMMC2 IRQ, time since start: %lu ms\n", ending_tick - starting_tick);
-  BSP_SD_IRQHandler(0);
 }

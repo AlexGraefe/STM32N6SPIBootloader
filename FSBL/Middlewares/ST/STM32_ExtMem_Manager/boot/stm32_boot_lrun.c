@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_boot_lrun.h"
 
+#include "main.h"
+
 /** @defgroup BOOT
   * @{
   */
@@ -253,7 +255,7 @@ BOOTStatus_TypeDef JumpToApplication(void)
 
   /* Re-enable the interrupts */
   __set_PRIMASK(primask_bit);
-
+  HAL_GPIO_WritePin(RED_LED_GPIO_Port,RED_LED_Pin,GPIO_PIN_SET);
   JumpToApp();
   return BOOT_OK;
 }
