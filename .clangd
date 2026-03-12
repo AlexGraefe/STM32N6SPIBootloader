@@ -18,7 +18,7 @@ CompileFlags:
   Add:
   - '-ferror-limit=0'
   - '-Wno-implicit-int'
-  CompilationDatabase: Appli/build
+  CompilationDatabase: Appli2/build
 Diagnostics:
   Suppress:
   - unused-includes
@@ -26,7 +26,23 @@ Diagnostics:
   - unknown_typename_suggest
   - typename_requires_specqual
 If:
-  PathMatch: Appli/.*
+  PathMatch: Appli2/.*
+
+---
+
+CompileFlags:
+  Add:
+  - '-ferror-limit=0'
+  - '-Wno-implicit-int'
+  CompilationDatabase: FSBL/build
+Diagnostics:
+  Suppress:
+  - unused-includes
+  - unknown_typename
+  - unknown_typename_suggest
+  - typename_requires_specqual
+If:
+  PathMatch: FSBL/.*
 
 ---
 
@@ -50,7 +66,7 @@ CompileFlags:
   Add:
   - '-ferror-limit=0'
   - '-Wno-implicit-int'
-  CompilationDatabase: Appli/build
+  CompilationDatabase: Appli2/build
 Diagnostics:
   Suppress:
   - unused-includes
@@ -58,39 +74,7 @@ Diagnostics:
   - unknown_typename_suggest
   - typename_requires_specqual
 If:
-  PathMatch: Appli/.*
-
----
-
-CompileFlags:
-  Add:
-  - '-ferror-limit=0'
-  - '-Wno-implicit-int'
-  CompilationDatabase: Appli/build
-Diagnostics:
-  Suppress:
-  - unused-includes
-  - unknown_typename
-  - unknown_typename_suggest
-  - typename_requires_specqual
-If:
-  PathMatch: Appli/.*
-
----
-
-CompileFlags:
-  Add:
-  - '-ferror-limit=0'
-  - '-Wno-implicit-int'
-  CompilationDatabase: Appli/build
-Diagnostics:
-  Suppress:
-  - unused-includes
-  - unknown_typename
-  - unknown_typename_suggest
-  - typename_requires_specqual
-If:
-  PathMatch: Appli/.*
+  PathMatch: Appli2/.*
 
 ---
 

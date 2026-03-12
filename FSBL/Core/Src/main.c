@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "extmem_manager.h"
+#include "stm32n6xx_hal_gpio.h"
+#include <math.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -111,16 +113,26 @@ int main(void)
   HAL_Delay(1000);
   HAL_GPIO_WritePin(RED_LED_GPIO_Port,RED_LED_Pin,GPIO_PIN_RESET);
   /* USER CODE END 2 */
+  HAL_Delay(3000);
+  if (!HAL_GPIO_ReadPin(USER1_BUTTON_GPIO_Port, USER1_BUTTON_Pin)) {
+    /* Launch the application */
+    if (BOOT_OK != BOOT_Application(0x00200000)) {
+      Error_Handler();
+      while (1) {
+          HAL_GPIO_TogglePin(RED_LED_GPIO_Port,RED_LED_Pin);
+          HAL_Delay(1000);
+        }
+    }
 
-  /* Launch the application */
-  if (BOOT_OK != BOOT_Application())
-  {
-    Error_Handler();
-    while (1)
-  {
-    HAL_GPIO_TogglePin(RED_LED_GPIO_Port,RED_LED_Pin);
-    HAL_Delay(1000);
-  }
+  } else {
+    /* Launch the application */
+    if (BOOT_OK != BOOT_Application(0x00100000)) {
+      Error_Handler();
+      while (1) {
+          HAL_GPIO_TogglePin(RED_LED_GPIO_Port,RED_LED_Pin);
+          HAL_Delay(1000);
+        }
+    }
   }
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -395,12 +407,11 @@ static void MX_XSPI2_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  /* USER CODE BEGIN MX_GPIO_Init_1 */
-
-  /* USER CODE END MX_GPIO_Init_1 */
+  GPIO_InitTypeDef GPIO_InitStruct_user1_button = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, GPIO_PIN_RESET);
@@ -412,12 +423,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RED_LED_GPIO_Port, &GPIO_InitStruct);
 
+  // Configure user button
+  GPIO_InitStruct_user1_button.Pin = USER1_BUTTON_Pin;
+  GPIO_InitStruct_user1_button.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct_user1_button.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct_user1_button.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USER1_BUTTON_GPIO_Port, &GPIO_InitStruct_user1_button);
+
   /*Configure the EXTI line attribute */
   HAL_EXTI_ConfigLineAttributes(EXTI_LINE_13, EXTI_LINE_SEC);
-
-  /* USER CODE BEGIN MX_GPIO_Init_2 */
-
-  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */

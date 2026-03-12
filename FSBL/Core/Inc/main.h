@@ -240,6 +240,9 @@ void Error_Handler(void);
 #define OCTOSPI_IO7_Pin GPIO_PIN_11
 #define OCTOSPI_IO7_GPIO_Port GPION
 
+#define USER1_BUTTON_Pin GPIO_PIN_13
+#define USER1_BUTTON_GPIO_Port GPIOC
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

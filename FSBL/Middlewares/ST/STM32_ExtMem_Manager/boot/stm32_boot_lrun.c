@@ -46,7 +46,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 BOOTStatus_TypeDef MapMemory(void);
-BOOTStatus_TypeDef CopyApplication(void);
+BOOTStatus_TypeDef CopyApplication(uint32_t ApplicationFlashAddress);
 BOOTStatus_TypeDef JumpToApplication(void);
 BOOTStatus_TypeDef GetBaseAddress(uint32_t MemIndex, uint32_t *BaseAddress);
 
@@ -57,9 +57,10 @@ BOOTStatus_TypeDef GetBaseAddress(uint32_t MemIndex, uint32_t *BaseAddress);
 
 /**
   * @brief Boots the application by mapping memories, loading code, and jumping to the application.
+  * @param ApplicationFlashAddress Flash address of the application image in the source memory.
   * @retval BOOTStatus_TypeDef Status of the operation.
   */
-BOOTStatus_TypeDef BOOT_Application(void)
+BOOTStatus_TypeDef BOOT_Application(uint32_t ApplicationFlashAddress)
 {
   BOOTStatus_TypeDef retr;
 
@@ -67,7 +68,7 @@ BOOTStatus_TypeDef BOOT_Application(void)
   retr = MapMemory();
   if (BOOT_OK == retr)
   {
-    retr = CopyApplication();
+    retr = CopyApplication(ApplicationFlashAddress);
     if (BOOT_OK == retr)
     {
       /* Jump on the application */
@@ -125,9 +126,10 @@ BOOTStatus_TypeDef MapMemory(void)
 
 /**
   * @brief  Copies the application data from source to destination.
+  * @param  ApplicationFlashAddress Flash address of the application image in the source memory.
   * @retval BOOTStatus_TypeDef Status of the operation.
   */
-BOOTStatus_TypeDef CopyApplication(void)
+BOOTStatus_TypeDef CopyApplication(uint32_t ApplicationFlashAddress)
 {
   BOOTStatus_TypeDef retr = BOOT_OK;
   uint8_t *source;
@@ -152,7 +154,7 @@ BOOTStatus_TypeDef CopyApplication(void)
     case EXTMEM_OK :
     {
       /* Manage the copy in mapped mode */
-      source = (uint8_t *)(MapAddress + EXTMEM_LRUN_SOURCE_ADDRESS);
+      source = (uint8_t *)(MapAddress + ApplicationFlashAddress);
       img_size = BOOT_GetApplicationSize((uint32_t) source);
       /* Copy from source to destination in mapped mode */
       for (uint32_t index = 0; index < img_size; index++)
@@ -174,9 +176,9 @@ BOOTStatus_TypeDef CopyApplication(void)
 
     case EXTMEM_ERROR_NOTSUPPORTED:
     {
-      img_size = BOOT_GetApplicationSize(EXTMEM_LRUN_SOURCE_ADDRESS);
+      img_size = BOOT_GetApplicationSize(ApplicationFlashAddress);
       /* Manage the copy using EXTMEM_Read */
-      if (EXTMEM_OK != EXTMEM_Read(EXTMEM_LRUN_SOURCE, EXTMEM_LRUN_SOURCE_ADDRESS, destination, img_size))
+      if (EXTMEM_OK != EXTMEM_Read(EXTMEM_LRUN_SOURCE, ApplicationFlashAddress, destination, img_size))
       {
         retr = BOOT_ERROR_COPY;
       }

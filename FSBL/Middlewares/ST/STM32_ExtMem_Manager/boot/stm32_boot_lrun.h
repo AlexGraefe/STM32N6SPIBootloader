@@ -59,7 +59,7 @@ typedef enum
   * @{
   */
 
-BOOTStatus_TypeDef BOOT_Application(void);
+BOOTStatus_TypeDef BOOT_Application(uint32_t ApplicationFlashAddress);
 uint32_t BOOT_GetApplicationSize(uint32_t img_addr);
 uint32_t BOOT_GetApplicationVectorTable(void);
 

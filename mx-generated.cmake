@@ -33,3 +33,20 @@ if((${BUILD_CONTEXT} MATCHES .*Appli.*) OR (NOT DEFINED BUILD_CONTEXT))
 	set(ST_BOOT_FLASH_APPLI_PROJECT_BUILD_TARGET ${CMAKE_SOURCE_DIR}/Appli/build/A2_Appli${CMAKE_EXECUTABLE_SUFFIX_CXX} CACHE FILEPATH "Path to appli project target")
 endif()
 
+#-----------------------Build Appli2 Project-----------------------#
+if((${BUILD_CONTEXT} MATCHES .*Appli2.*) OR (NOT DEFINED BUILD_CONTEXT))
+    message("   Build context: " Appli2)
+    ExternalProject_Add(Appli2
+        BINARY_DIR                  ${CMAKE_SOURCE_DIR}/Appli2/build
+        SOURCE_DIR                  ${PROJECT_SOURCE_DIR}/Appli2
+        PREFIX                      Appli2
+        CONFIGURE_HANDLED_BY_BUILD  true
+        INSTALL_COMMAND             ""
+        CMAKE_ARGS                  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        BUILD_ALWAYS                true
+    )
+
+	set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_SOURCE_DIR}/Appli2/build")
+	set(ST_BOOT_FLASH_APPLI_PROJECT_BUILD_TARGET ${CMAKE_SOURCE_DIR}/Appli2/build/A2_Appli${CMAKE_EXECUTABLE_SUFFIX_CXX} CACHE FILEPATH "Path to appli project target")
+endif()
+
